@@ -26,7 +26,7 @@
         >
           <UIcon
             name="i-heroicons-check-circle-16-solid"
-            class="w-20 h-20 text-green-500"
+            class="w-30 h-30 text-green-500"
           />
         </div>
 
@@ -36,7 +36,7 @@
         >
           <UIcon
             name="i-heroicons-x-circle-16-solid"
-            class="w-20 h-20 text-red-500"
+            class="w-30 h-30 text-red-500"
           />
         </div>
 
@@ -77,11 +77,11 @@ export default {
     },
 
     validationSuccess() {
-      return this.isValid === true
+      return this.isValid === true && this.paused
     },
 
     validationFailure() {
-      return this.isValid === false
+      return this.isValid === false && this.paused
     }
   },
   methods: {
@@ -124,7 +124,7 @@ export default {
   width: 100%;
   height: 100%;
 
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.6);
   filter: blur(0.5);
   padding: 10px;
   text-align: center;
@@ -135,6 +135,7 @@ export default {
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
+  align-items: center;
 }
 
 .screen {
