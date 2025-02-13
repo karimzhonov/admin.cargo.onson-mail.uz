@@ -11,9 +11,10 @@
       <p class="mt-3">
         {{ error }}
       </p>
+<!--      <u-button label="test" @click="send_qr_data('a7f7ca44-ffa3-446e-8a45-f19e64d71519')" />-->
     </div>
 
-    <div class="flex justify-center mt-3 border-r-4">
+    <div class="flex justify-center mt-3 border-r-4" v-else>
       <qrcode-stream
         :paused="paused"
         class="qrcode-stream"
@@ -26,7 +27,7 @@
         >
           <UIcon
             name="i-heroicons-check-circle-16-solid"
-            class="w-30 h-30 text-green-500"
+            class="w-20 h-20 text-green-500"
           />
         </div>
 
@@ -36,7 +37,7 @@
         >
           <UIcon
             name="i-heroicons-x-circle-16-solid"
-            class="w-30 h-30 text-red-500"
+            class="w-20 h-20 text-red-500"
           />
         </div>
 
@@ -63,7 +64,6 @@ export default {
   name: 'Qrcode',
   components: { QrcodeStream },
   data() {
-    console.log(useLocalePath())
     return {
       paused: false,
       error: null,
@@ -100,12 +100,22 @@ export default {
       this.isValid = undefined
 
       // pretend it's taking really long
-      await this.timeout(1000)
+      await this.timeout(500)
       this.isValid = this.data.startsWith('https://onson-mail.uz/qrcode/?order_id=')
-
+      const search = new URLSearchParams(this.data)
+      await this.send_qr_data(search.get('order_id'))
       // some more delay, so users have time to read the message
       await this.timeout(1000)
       this.paused = false
+    },
+    async send_qr_data(order_id: any) {
+      try {
+        const { data } = await this.$api(`cargo/order/admin/order/${order_id}/change_status/`, { method: 'PATCH', body: { status: 'departure_datetime' } })
+        useToast().add({ title: `${JSON.stringify(data)}`, icon: 'i-heroicons-x-circle-16-solid', color: 'green' })
+      } catch (e: any) {
+        console.log(e)
+        useToast().add({ title: `${e}`, icon: 'i-heroicons-x-circle-16-solid', color: 'red' })
+      }
     }
   }
 }
@@ -159,7 +169,7 @@ export default {
 .screen > div {
   width: 60%;
   height: 60%;
-  border: 2px solid black;
+  border: 4px solid green;
   border-radius: 5px;
 }
 </style>

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-const route = useRoute()
-const { isHelpSlideoverOpen } = useDashboard()
 const i18n = useI18n()
 
 let order_status = {
@@ -62,17 +60,6 @@ const groups = [{
   key: 'links',
   label: 'Go to',
   commands: links.map(link => ({ ...link, shortcuts: link.tooltip?.shortcuts }))
-}, {
-  key: 'code',
-  label: 'Code',
-  commands: [{
-    id: 'source',
-    label: 'View page source',
-    icon: 'i-simple-icons-github',
-    click: () => {
-      window.open(`https://github.com/nuxt-ui-pro/dashboard/blob/v1/pages${route.path === '/' ? '/index' : route.path}.vue`, '_blank')
-    }
-  }]
 }]
 
 const localPath = useLocalePath()

@@ -1,42 +1,48 @@
 <script setup lang="ts">
+import {useIFetch} from "~/plugins/useIFetch";
+
 definePageMeta({
   layout: 'auth'
 })
 
 useSeoMeta({
-  title: 'Login'
+  title: 'Вход'
 })
 
+const i18n = useI18n()
+
 const fields = [{
-  name: 'email',
-  type: 'email',
-  label: 'Email',
-  placeholder: 'Enter your email'
+  name: 'phone',
+  type: 'phone',
+  label: i18n.t('Номер телефона'),
+  placeholder: i18n.t('Введите номер телефона')
 }, {
   name: 'password',
-  label: 'Password',
+  label: i18n.t('Пароль'),
   type: 'password',
-  placeholder: 'Enter your password'
+  placeholder: i18n.t('Введите номер пароль')
 }]
 
 const validate = (state: any) => {
   const errors = []
-  if (!state.email) errors.push({ path: 'email', message: 'Email is required' })
-  if (!state.password) errors.push({ path: 'password', message: 'Password is required' })
+  if (!state.phone) errors.push({ path: 'phone', message: i18n.t('Телефон – обязательное поле') })
+  if (!state.password) errors.push({ path: 'password', message: i18n.t('Пароль – обязательное поле') })
   return errors
 }
 
-const providers = [{
-  label: 'Continue with GitHub',
-  icon: 'i-simple-icons-github',
-  color: 'white' as const,
-  click: () => {
-    console.log('Redirect to GitHub')
-  }
-}]
+const providers = []
 
-function onSubmit(data: any) {
+async function onSubmit(data: any) {
   console.log('Submitted', data)
+  const response = await useIFetch('oauth/', { method: 'POST', body: data })
+  if (response.status.value === 'success') {
+    token.value.access = response.data.value.access
+    token.value.refresh = response.data.value.refresh
+    await useRouter().push(useRoute().query.next ?? useLocalePath()('/'))
+  } else {
+    const message = Object.values(response.error.value.data).map(v => typeof v === 'string' ? v : v.join('. ')).join('. ')
+    useToast().add({ title: message, icon: 'i-heroicons-x-circle-16-solid', color: 'red' })
+  }
 }
 </script>
 
@@ -48,33 +54,12 @@ function onSubmit(data: any) {
       :fields="fields"
       :validate="validate"
       :providers="providers"
-      title="Welcome back"
+      title="Onson Mail Cargo Admin"
       align="top"
       icon="i-heroicons-lock-closed"
       :ui="{ base: 'text-center', footer: 'text-center' }"
-      :submit-button="{ trailingIcon: 'i-heroicons-arrow-right-20-solid' }"
+      :submit-button="{ trailingIcon: 'i-heroicons-arrow-right-20-solid', label: $t('Вход') }"
       @submit="onSubmit"
-    >
-      <template #description>
-        Don't have an account? <NuxtLink
-          to="/signup"
-          class="text-primary font-medium"
-        >Sign up</NuxtLink>.
-      </template>
-
-      <template #password-hint>
-        <NuxtLink
-          to="/"
-          class="text-primary font-medium"
-        >Forgot password?</NuxtLink>
-      </template>
-
-      <template #footer>
-        By signing in, you agree to our <NuxtLink
-          to="/"
-          class="text-primary font-medium"
-        >Terms of Service</NuxtLink>.
-      </template>
-    </UAuthForm>
+    />
   </UCard>
 </template>

@@ -1,7 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   extends: ['@blakvghost/ui-pro'],
-  ssr: false,
   modules: [
     '@vite-pwa/nuxt',
     '@nuxt/eslint',
@@ -11,6 +10,7 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxtjs/sitemap'
   ],
+  ssr: false,
 
   devtools: {
     enabled: false
@@ -69,8 +69,8 @@ export default defineNuxtConfig({
   },
   pwa: {
     manifest: {
-      name: 'Onson Mail Cargo',
-      short_name: 'Onson Mail Cargo',
+      name: 'Onson Mail Cargo Admin',
+      short_name: 'Onson Mail Cargo Admin',
       description: 'Onson Mail Group',
       theme_color: '#00D8A5',
       icons: [
