@@ -13,7 +13,7 @@
       </p>
     </div>
 
-    <div class="flex justify-center">
+    <div class="flex justify-center mt-3 border-r-4">
       <qrcode-stream
         :paused="paused"
         class="qrcode-stream"
@@ -24,27 +24,31 @@
           v-if="validationSuccess"
           class="validation-success"
         >
-          <i style="font-size: 30px" class="i-heroicons-check-circle-16-solid text-green-500"></i>
+          <UIcon
+            name="i-heroicons-check-circle-16-solid"
+            class="w-20 h-20 text-green-500"
+          />
         </div>
 
         <div
           v-else-if="validationFailure"
           class="validation-failure"
         >
-          <i style="font-size: 30px" class="i-heroicons-check-circle-16-solid text-red-500"></i>
+          <UIcon
+            name="i-heroicons-x-circle-16-solid"
+            class="w-20 h-20 text-red-500"
+          />
         </div>
 
         <div
           v-else-if="validationPending"
           class="validation-pending"
-        >
-          <i style="font-size: 30px" class="i-heroicons-check-circle-16-solid text-green-500"></i>
-        </div>
+        />
         <div
           v-else
           class="screen"
         >
-          <div></div>
+          <div />
         </div>
       </qrcode-stream>
     </div>
@@ -93,6 +97,7 @@ export default {
     async onDetect([firstDetectedCode]) {
       this.data = firstDetectedCode.rawValue
       this.paused = true
+      this.isValid = undefined
 
       // pretend it's taking really long
       await this.timeout(1000)
@@ -153,7 +158,7 @@ export default {
 .screen > div {
   width: 60%;
   height: 60%;
-  border: 2px solid rgb(34 197 94 / var(--un-text-opacity));
+  border: 2px solid black;
   border-radius: 5px;
 }
 </style>
