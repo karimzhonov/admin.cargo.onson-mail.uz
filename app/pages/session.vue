@@ -9,6 +9,8 @@
 </template>
 
 <script>
+import { get_ws_api } from '~/utils.js'
+
 export default {
   name: 'Session',
   data() {
@@ -18,8 +20,7 @@ export default {
   },
 
   async mounted() {
-    const base_url = process.env.WS_API ?? 'ws://localhost:7000/api/ws/'
-    const ws = new WebSocket(`${base_url}cargo/order/admin/qrcode-session/?token=${token.value.access}`)
+    const ws = new WebSocket(`${get_ws_api}cargo/order/admin/qrcode-session/?token=${token.value.access}`)
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data)
       this.table = [data, ...this.table]

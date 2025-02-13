@@ -1,6 +1,7 @@
 import { defu } from 'defu'
 import type { UseFetchOptions } from '#app'
 import token from '~/composables/token'
+import { get_api } from '~/utils'
 
 export default defineNuxtPlugin(() => {
   return {
@@ -10,7 +11,7 @@ export default defineNuxtPlugin(() => {
   }
 })
 
-const baseURL = process.env.API ?? 'http://localhost:7000/api/'
+const baseURL = get_api
 
 export async function useIFetch<T>(
   url: string,
