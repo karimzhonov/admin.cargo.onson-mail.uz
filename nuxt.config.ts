@@ -1,20 +1,32 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  extends: ['@nuxt/ui-pro'],
-
+  extends: ['@blakvghost/ui-pro'],
+  ssr: false,
   modules: [
+    '@vite-pwa/nuxt',
     '@nuxt/eslint',
     '@nuxt/fonts',
     '@nuxt/ui',
-    '@vueuse/nuxt'
+    '@vueuse/nuxt',
+    '@nuxtjs/i18n',
+    '@nuxtjs/sitemap'
   ],
 
   devtools: {
-    enabled: true
+    enabled: false
+  },
+
+  site: {
+    enabled: true,
+    url: 'https://cargo.onson-mail.uz',
+    urls: ['/'],
+    name: 'Onson Mail Cargo',
+    autoI18n: 'prefix_except_default',
+    debug: true
   },
 
   colorMode: {
-    disableTransition: true
+    disableTransition: false
   },
 
   ui: {
@@ -42,6 +54,66 @@ export default defineNuxtConfig({
         commaDangle: 'never',
         braceStyle: '1tbs'
       }
+    }
+  },
+
+  i18n: {
+    lazy: true,
+    langDir: 'locales',
+    strategy: 'prefix_except_default',
+    locales: [
+      { code: 'ru', language: 'ru', name: 'Русский', file: 'ru.json', cache: false },
+      { code: 'uz', language: 'uz', name: 'O\'zbek', file: 'uz.json', cache: false }
+    ],
+    defaultLocale: 'ru'
+  },
+  pwa: {
+    manifest: {
+      name: 'Onson Mail Cargo',
+      short_name: 'Onson Mail Cargo',
+      description: 'Onson Mail Group',
+      theme_color: '#00D8A5',
+      icons: [
+        {
+          src: '/icons/logo64.png',
+          sizes: '64x64',
+          type: 'image/png'
+        },
+        {
+          src: '/icons/logo144.png',
+          sizes: '144x144',
+          type: 'image/png'
+        },
+        {
+          src: '/icons/logo192.png',
+          sizes: '192x192',
+          type: 'image/png'
+        },
+        {
+          src: '/icons/logo512.png',
+          sizes: '512x512',
+          type: 'image/png'
+        }
+      ]
+    },
+    workbox: {
+      navigateFallback: '/'
+    },
+    // injectManifest: {
+    //     globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+    // },
+    client: {
+      installPrompt: true,
+      // you don't need to include this: only for testing purposes
+      // if enabling periodic sync for update use 1 hour or so (periodicSyncForUpdates: 3600)
+      periodicSyncForUpdates: 20
+    },
+    devOptions: {
+      enabled: true,
+      // suppressWarnings: true,
+      // navigateFallback: '/',
+      // navigateFallbackAllowlist: [/^\/$/],
+      type: 'module'
     }
   }
 })

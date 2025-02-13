@@ -1,66 +1,61 @@
 <script setup lang="ts">
 const route = useRoute()
-const appConfig = useAppConfig()
 const { isHelpSlideoverOpen } = useDashboard()
+const i18n = useI18n()
+
+let order_status = {
+  departure_datetime: 'Yolga chiqdi',
+  enter_uzb_datetime: 'UZBga keldi',
+  process_customs_datetime: 'Tamojnada',
+  process_local_datetime: 'Dastavkada',
+  received_datetime: 'Yetkasib berildi'
+}
+
+order_status = Object.keys(order_status).reduce((acc: any, status: string) => {
+  return [...acc, {
+    label: order_status[status],
+    to: `/orders?status=${status}`,
+    exact: true
+  }]
+}, [])
 
 const links = [{
   id: 'home',
-  label: 'Home',
+  label: i18n.t('Главная страница'),
   icon: 'i-heroicons-home',
   to: '/',
   tooltip: {
-    text: 'Home',
+    text: i18n.t('Главная страница'),
     shortcuts: ['G', 'H']
   }
 }, {
-  id: 'inbox',
-  label: 'Inbox',
-  icon: 'i-heroicons-inbox',
+  id: 'parts',
+  label: i18n.t('Партия'),
+  icon: 'i-heroicons-paper-airplane',
   to: '/inbox',
-  badge: '4',
+  // badge: '4',
   tooltip: {
-    text: 'Inbox',
+    text: i18n.t('Партия'),
     shortcuts: ['G', 'I']
   }
 }, {
-  id: 'users',
-  label: 'Users',
-  icon: 'i-heroicons-user-group',
-  to: '/users',
+  id: 'session',
+  label: i18n.t('Qrcode Сессия'),
+  icon: 'i-heroicons-arrow-down-on-square-stack',
+  to: '/session',
   tooltip: {
-    text: 'Users',
+    text: i18n.t('Qrcode Сессия'),
     shortcuts: ['G', 'U']
   }
 }, {
-  id: 'settings',
-  label: 'Settings',
-  to: '/settings',
-  icon: 'i-heroicons-cog-8-tooth',
-  children: [{
-    label: 'General',
-    to: '/settings',
-    exact: true
-  }, {
-    label: 'Members',
-    to: '/settings/members'
-  }, {
-    label: 'Notifications',
-    to: '/settings/notifications'
-  }],
+  id: 'orders',
+  label: i18n.t('Инвойси'),
+  icon: 'i-heroicons-square-3-stack-3d-solid',
+  children: order_status,
   tooltip: {
-    text: 'Settings',
+    text: i18n.t('Инвойси'),
     shortcuts: ['G', 'S']
   }
-}]
-
-const footerLinks = [{
-  label: 'Invite people',
-  icon: 'i-heroicons-plus',
-  to: '/settings/members'
-}, {
-  label: 'Help & Support',
-  icon: 'i-heroicons-question-mark-circle',
-  click: () => isHelpSlideoverOpen.value = true
 }]
 
 const groups = [{
@@ -80,8 +75,7 @@ const groups = [{
   }]
 }]
 
-const defaultColors = ref(['green', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet'].map(color => ({ label: color, chip: color, click: () => appConfig.ui.primary = color })))
-const colors = computed(() => defaultColors.value.map(color => ({ ...color, active: appConfig.ui.primary === color.label })))
+const localPath = useLocalePath()
 </script>
 
 <template>
@@ -96,29 +90,40 @@ const colors = computed(() => defaultColors.value.map(color => ({ ...color, acti
         :ui="{ left: 'flex-1' }"
       >
         <template #left>
-          <TeamsDropdown />
+          <NuxtLink
+            :to="localPath('/')"
+            class=" flex items-center gap-2"
+          >
+            <span class="flex">
+              <img
+                src="/logo.png"
+                width="45"
+                height="45"
+                alt="logo"
+              >
+            </span>
+            <span class="text-lg text-gray-700 dark:text-white">
+              <p
+                class="mb-0 font-bold text-transparent bg-clip-text bg-gradient-to-br from-primary to-[#8cd66a]"
+                style="line-height: 16px;"
+              >ONSON MAIL</p>
+              <p
+                class="mb=0 font-bold text-transparent bg-clip-text bg-gradient-to-br from-primary to-[#8cd66a]"
+                style="font-size: 12px; line-height: 12px;"
+              >CARGO ADMIN</p>
+            </span>
+          </NuxtLink>
         </template>
       </UDashboardNavbar>
 
       <UDashboardSidebar>
         <template #header>
-          <UDashboardSearchButton />
+          <UDashboardSearchButton :label="$t('Поиск')" />
         </template>
 
         <UDashboardSidebarLinks :links="links" />
 
         <UDivider />
-
-        <UDashboardSidebarLinks
-          :links="[{ label: 'Colors', draggable: true, children: colors }]"
-          @update:links="colors => defaultColors = colors"
-        />
-
-        <div class="flex-1" />
-
-        <UDashboardSidebarLinks :links="footerLinks" />
-
-        <UDivider class="sticky bottom-0" />
 
         <template #footer>
           <!-- ~/components/UserDropdown.vue -->
@@ -126,7 +131,6 @@ const colors = computed(() => defaultColors.value.map(color => ({ ...color, acti
         </template>
       </UDashboardSidebar>
     </UDashboardPanel>
-
     <slot />
 
     <!-- ~/components/HelpSlideover.vue -->
