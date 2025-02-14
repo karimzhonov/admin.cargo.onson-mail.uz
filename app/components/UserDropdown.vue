@@ -1,49 +1,54 @@
-<script setup lang="ts">
-const { isHelpSlideoverOpen } = useDashboard()
-const { isDashboardSearchModalOpen } = useUIState()
-const { metaSymbol } = useShortcuts()
+<script lang="ts">
+const {isHelpSlideoverOpen} = useDashboard()
+const {isDashboardSearchModalOpen} = useUIState()
+const {metaSymbol} = useShortcuts()
 
-const items = computed(() => [
-  [{
-    slot: 'account',
-    label: '',
-    disabled: true
-  }], [{
-    label: 'Settings',
-    icon: 'i-heroicons-cog-8-tooth',
-    to: '/settings'
-  }, {
-    label: 'Command menu',
-    icon: 'i-heroicons-command-line',
-    shortcuts: [metaSymbol.value, 'K'],
-    click: () => {
-      isDashboardSearchModalOpen.value = true
-    }
-  }, {
-    label: 'Help & Support',
-    icon: 'i-heroicons-question-mark-circle',
-    shortcuts: ['?'],
-    click: () => isHelpSlideoverOpen.value = true
-  }], [{
-    label: 'Documentation',
-    icon: 'i-heroicons-book-open',
-    to: 'https://ui.nuxt.com/pro/getting-started',
-    target: '_blank'
-  }, {
-    label: 'GitHub repository',
-    icon: 'i-simple-icons-github',
-    to: 'https://github.com/nuxt-ui-pro/dashboard',
-    target: '_blank'
-  }, {
-    label: 'Buy Nuxt UI Pro',
-    icon: 'i-heroicons-credit-card',
-    to: 'https://ui.nuxt.com/pro/purchase',
-    target: '_blank'
-  }], [{
-    label: 'Sign out',
-    icon: 'i-heroicons-arrow-left-on-rectangle'
-  }]
-])
+export default {
+  name: 'UserDropDown',
+  data() {
+    return {}
+  },
+  computed: {
+    items() {
+      return [
+        [{
+          slot: 'account',
+          label: '',
+          disabled: true
+        }], [{
+          label: 'Settings',
+          icon: 'i-heroicons-cog-8-tooth',
+          to: useLocalePath()('/settings')
+        }, {
+          label: 'Command menu',
+          icon: 'i-heroicons-command-line',
+          shortcuts: [metaSymbol.value, 'K'],
+          click: () => {
+            isDashboardSearchModalOpen.value = true
+          }
+        }, {
+          label: 'Help & Support',
+          icon: 'i-heroicons-question-mark-circle',
+          shortcuts: ['?'],
+          click: () => isHelpSlideoverOpen.value = true
+        }], [{
+          label: 'Sign out',
+          icon: 'i-heroicons-arrow-left-on-rectangle',
+          to: useLocalePath()('/login'),
+          click() {
+            token.value.access = null
+            token.value.refresh = null
+          }
+        }]
+      ]
+    },
+    userr: () => user.value
+  },
+  async mounted() {
+    const r = await this.$api('oauth/me/')
+    user.value = r.data.value
+  }
+}
 </script>
 
 <template>
@@ -59,12 +64,12 @@ const items = computed(() => [
         color="gray"
         variant="ghost"
         class="w-full"
-        label="Benjamin"
+        :label="`${userr.phone}`"
         :class="[open && 'bg-gray-50 dark:bg-gray-800']"
       >
         <template #leading>
           <UAvatar
-            src="https://avatars.githubusercontent.com/u/739984?v=4"
+            :src="userr.avatar"
             size="2xs"
           />
         </template>
@@ -80,11 +85,8 @@ const items = computed(() => [
 
     <template #account>
       <div class="text-left">
-        <p>
-          Signed in as
-        </p>
         <p class="truncate font-medium text-gray-900 dark:text-white">
-          ben@nuxtlabs.com
+          {{ user.first_name }} {{ user.last_name }}
         </p>
       </div>
     </template>

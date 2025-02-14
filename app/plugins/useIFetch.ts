@@ -18,32 +18,40 @@ export async function useIFetch<T>(
   options: UseFetchOptions<T> = {}
 ) {
   const defaults: UseFetchOptions<T> = {
+    method: 'GET',
     baseURL,
     key: url,
     headers: token.value.access
       ? { Authorization: `Bearer ${token.value.access}` }
-      : {},
-    onResponse: async ({ response, options }) => {
-      if (response.status === 401) {
-        try {
-          if (!token.value.refresh) return await useRouter().push(useLocalePath()(`/login?next=${useRoute().path}`))
-          const newToken = await refreshToken()
-          if (!newToken) return await useRouter().push(useLocalePath()(`/login?next=${useRoute().path}`))
-          token.value.access = newToken
-
-          options.headers = { Authorization: `Bearer ${newToken}` }
-          useFetch(url, options as UseFetchOptions<T>)
-        } catch (error) {
-          console.error('Token refresh failed:', error)
-        }
-      }
-      return response
-    }
+      : {}
   }
 
   const params = defu(options, defaults)
 
-  return useFetch(url, params)
+  const response = await useFetch(url, params)
+  if (response.status.value === 'error') {
+    if (response.error.value.statusCode === 401) {
+      if (token.value.refresh) {
+        const newToken = await refreshToken()
+        token.value.access = newToken
+
+        params.headers = { Authorization: `Bearer ${newToken}` }
+        return await useFetch(url, params as UseFetchOptions<T>)
+      }
+      await useRouter().push(useLocalePath()(`/login?next=${useRoute().path}`))
+    }
+    const message = Object.values(response.error.value.data).map(v => typeof v === 'string' ? v : v.join('. ')).join('. ')
+    useToast().add({ title: message, icon: 'i-heroicons-x-circle-16-solid', color: 'red' })
+    throw Error(message)
+  } else if (params.method !== 'GET') {
+    console.log(response)
+    useToast().add({
+      title: `Операция выполнена успешно`,
+      icon: 'i-heroicons-x-circle-16-solid',
+      color: 'green'
+    })
+  }
+  return response
 }
 
 async function refreshToken() {

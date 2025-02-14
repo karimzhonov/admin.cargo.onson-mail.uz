@@ -1,59 +1,63 @@
-<script setup lang="ts">
+<script lang="ts">
 import type { FormError, FormSubmitEvent } from '#ui/types'
 
-const fileRef = ref<HTMLInputElement>()
-const isDeleteAccountModalOpen = ref(false)
+export default {
+  name: 'Settings',
+  data() {
+    return {
+      state: JSON.parse(JSON.stringify(user.value)),
+      ava: null
+    }
+  },
+  methods: {
+    async onSubmit(event: FormSubmitEvent<any>) {
+      // Do something with data
+      console.log(event.data)
+      const form = new FormData()
+      for (const key in event.data) {
+        form.set(key, event.data[key])
+      }
+      if (this.ava) {
+        form.set('avatar', this.ava)
+      }
+      const { data } = await this.$api('oauth/account/', { method: 'PATCH', body: form })
+      user.value = data.value
+    },
+    onFileClick() {
+      this.$refs.fileRef?.click()
+    },
+    onFileChange(e: Event) {
+      const input = e.target as HTMLInputElement
 
-const state = reactive({
-  name: 'Benjamin Canac',
-  email: 'ben@nuxtlabs.com',
-  username: 'benjamincanac',
-  avatar: '',
-  bio: '',
-  password_current: '',
-  password_new: ''
-})
+      if (!input.files?.length) {
+        return
+      }
 
-const toast = useToast()
-
-function validate(state: any): FormError[] {
-  const errors = []
-  if (!state.name) errors.push({ path: 'name', message: 'Please enter your name.' })
-  if (!state.email) errors.push({ path: 'email', message: 'Please enter your email.' })
-  if ((state.password_current && !state.password_new) || (!state.password_current && state.password_new)) errors.push({ path: 'password', message: 'Please enter a valid password.' })
-  return errors
-}
-
-function onFileChange(e: Event) {
-  const input = e.target as HTMLInputElement
-
-  if (!input.files?.length) {
-    return
+      this.state.avatar = URL.createObjectURL(input.files[0])
+      this.ava = input.files[0]
+    },
+    validate(state: any): FormError[] {
+      const errors = []
+      if (!state.first_name) errors.push({ path: 'first_name', message: 'Пожалуйста, введите свое имя.' })
+      if (!state.last_name) errors.push({ path: 'last_name', message: 'Пожалуйста, введите свое фамилия.' })
+      // if ((state.password1 && !state.password2) || (!state.password1 && state.password2)) errors.push({
+      //   path: 'password',
+      //   message: 'Please enter a valid password.'
+      // })
+      return errors
+    }
   }
-
-  state.avatar = URL.createObjectURL(input.files[0])
-}
-
-function onFileClick() {
-  fileRef.value?.click()
-}
-
-async function onSubmit(event: FormSubmitEvent<any>) {
-  // Do something with data
-  console.log(event.data)
-
-  toast.add({ title: 'Profile updated', icon: 'i-heroicons-check-circle' })
 }
 </script>
 
 <template>
   <UDashboardPanelContent class="pb-24">
     <UDashboardSection
-      title="Theme"
-      description="Customize the look and feel of your dashboard."
+      :title="$t('Тема')"
+      :description="$t('Настройте внешний вид панели управления.')"
     >
       <template #links>
-        <UColorModeSelect color="gray" />
+        <ThemeSwitcher color="gray" />
       </template>
     </UDashboardSection>
 
@@ -66,27 +70,26 @@ async function onSubmit(event: FormSubmitEvent<any>) {
       @submit="onSubmit"
     >
       <UDashboardSection
-        title="Profile"
-        description="This information will be displayed publicly so be careful what you share."
+        :title="$t('Профиль')"
+        :description="$t('Эта информация будет отображаться публично, поэтому будьте осторожны с тем, чем делитесь.')"
       >
         <template #links>
           <UButton
             type="submit"
-            label="Save changes"
+            :label="$t('Сохранить изменения')"
             color="black"
           />
         </template>
 
         <UFormGroup
-          name="name"
-          label="Name"
-          description="Will appear on receipts, invoices, and other communication."
+          name="first_name"
+          :label="$t('Имя')"
           required
           class="grid grid-cols-2 gap-2 items-center"
           :ui="{ container: '' }"
         >
           <UInput
-            v-model="state.name"
+            v-model="state.first_name"
             autocomplete="off"
             icon="i-heroicons-user"
             size="md"
@@ -94,16 +97,14 @@ async function onSubmit(event: FormSubmitEvent<any>) {
         </UFormGroup>
 
         <UFormGroup
-          name="email"
-          label="Email"
-          description="Used to sign in, for email receipts and product updates."
+          name="last_name"
+          :label="$t('Фамилия')"
           required
           class="grid grid-cols-2 gap-2"
           :ui="{ container: '' }"
         >
           <UInput
-            v-model="state.email"
-            type="email"
+            v-model="state.last_name"
             autocomplete="off"
             icon="i-heroicons-envelope"
             size="md"
@@ -111,36 +112,15 @@ async function onSubmit(event: FormSubmitEvent<any>) {
         </UFormGroup>
 
         <UFormGroup
-          name="username"
-          label="Username"
-          description="Your unique username for logging in and your profile URL."
-          required
-          class="grid grid-cols-2 gap-2"
-          :ui="{ container: '' }"
-        >
-          <UInput
-            v-model="state.username"
-            type="username"
-            autocomplete="off"
-            size="md"
-            input-class="ps-[77px]"
-          >
-            <template #leading>
-              <span class="text-gray-500 dark:text-gray-400 text-sm">nuxt.com/</span>
-            </template>
-          </UInput>
-        </UFormGroup>
-
-        <UFormGroup
           name="avatar"
-          label="Avatar"
+          :label="$t('Фото')"
           class="grid grid-cols-2 gap-2"
           help="JPG, GIF or PNG. 1MB Max."
           :ui="{ container: 'flex flex-wrap items-center gap-3', help: 'mt-0' }"
         >
           <UAvatar
             :src="state.avatar"
-            :alt="state.name"
+            :alt="state.first_name"
             size="lg"
           />
 
@@ -159,65 +139,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
             @change="onFileChange"
           >
         </UFormGroup>
-
-        <UFormGroup
-          name="bio"
-          label="Bio"
-          description="Brief description for your profile. URLs are hyperlinked."
-          class="grid grid-cols-2 gap-2"
-          :ui="{ container: '' }"
-        >
-          <UTextarea
-            v-model="state.bio"
-            :rows="5"
-            autoresize
-            size="md"
-          />
-        </UFormGroup>
-
-        <UFormGroup
-          name="password"
-          label="Password"
-          description="Confirm your current password before setting a new one."
-          class="grid grid-cols-2 gap-2"
-          :ui="{ container: '' }"
-        >
-          <UInput
-            id="password"
-            v-model="state.password_current"
-            type="password"
-            placeholder="Current password"
-            size="md"
-          />
-          <UInput
-            id="password_new"
-            v-model="state.password_new"
-            type="password"
-            placeholder="New password"
-            size="md"
-            class="mt-2"
-          />
-        </UFormGroup>
       </UDashboardSection>
     </UForm>
-
-    <UDivider class="mb-4" />
-
-    <UDashboardSection
-      title="Account"
-      description="No longer want to use our service? You can delete your account here. This action is not reversible. All information related to this account will be deleted permanently."
-    >
-      <div>
-        <UButton
-          color="red"
-          label="Delete account"
-          size="md"
-          @click="isDeleteAccountModalOpen = true"
-        />
-      </div>
-    </UDashboardSection>
-
-    <!-- ~/components/settings/DeleteAccountModal.vue -->
-    <SettingsDeleteAccountModal v-model="isDeleteAccountModalOpen" />
   </UDashboardPanelContent>
 </template>

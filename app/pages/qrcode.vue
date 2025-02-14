@@ -102,16 +102,16 @@ export default {
       // pretend it's taking really long
       await this.timeout(500)
       this.isValid = this.data.startsWith('https://onson-mail.uz/qrcode/?order_id=')
-      const search = new URLSearchParams(this.data)
-      await this.send_qr_data(search.get('order_id'))
+      const url = new URL(this.data)
+      await this.send_qr_data(url.searchParams.get('order_id'))
       // some more delay, so users have time to read the message
       await this.timeout(1000)
       this.paused = false
     },
     async send_qr_data(order_id: any) {
       try {
-        const { data } = await this.$api(`cargo/order/admin/order/${order_id}/change_status/`, { method: 'PATCH', body: { status: 'departure_datetime' } })
-        useToast().add({ title: `${JSON.stringify(data)}`, icon: 'i-heroicons-x-circle-16-solid', color: 'green' })
+        await this.$api(`cargo/order/admin/order/${order_id}/change_status/`, { method: 'PATCH', body: { status: 'departure_datetime' } })
+        useToast()
       } catch (e: any) {
         console.log(e)
         useToast().add({ title: `${e}`, icon: 'i-heroicons-x-circle-16-solid', color: 'red' })
