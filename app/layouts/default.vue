@@ -30,7 +30,7 @@ const links = [{
   id: 'parts',
   label: i18n.t('Партия'),
   icon: 'i-heroicons-paper-airplane',
-  to: '/inbox',
+  to: '/parts',
   // badge: '4',
   tooltip: {
     text: i18n.t('Партия'),

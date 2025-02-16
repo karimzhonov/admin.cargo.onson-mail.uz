@@ -112,7 +112,7 @@ export default {
   },
   methods: {
     download(row) {
-      useIFetch(`cargo/order/admin/order/${row.id}/pdf/`)
+      useIFetch(`cargo/order/admin/order/${row.id}/xlsx/`)
         .then(response => response.data.value)
         .then((blob: any) => {
           const url = window.URL.createObjectURL(blob)
