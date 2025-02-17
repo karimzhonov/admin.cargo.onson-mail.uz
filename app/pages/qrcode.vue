@@ -1,60 +1,97 @@
 <template>
-  <WithNavbar>
-    <div
-      v-if="error"
-      class="flex flex-col mt-3"
-      style="align-items: center"
-    >
-      <qr
-        :data="`https://admin.cargo.onson-mail.uz${localPath('/qrcode/')}`"
-      />
-      <p class="mt-3">
-        {{ error }}
-      </p>
-<!--      <u-button label="test" @click="send_qr_data('a7f7ca44-ffa3-446e-8a45-f19e64d71519')" />-->
-    </div>
-
-    <div class="flex justify-center mt-3 border-r-4" v-else>
-      <qrcode-stream
-        :paused="paused"
-        class="qrcode-stream"
-        @detect="onDetect"
-        @error="onError"
+  <UDashboardPage>
+    <UDashboardPanel grow>
+      <UDashboardNavbar
+        :title="$t('Инвойси')"
       >
-        <div
-          v-if="validationSuccess"
-          class="validation-success"
+        <template #right>
+          <USelectMenu
+            v-model="st"
+            :options="Object.keys(statuses)"
+          >
+            <template #label>
+              {{ statuses[st].name }}
+            </template>
+            <template #option="{ option }">
+              {{ statuses[option].name }}
+            </template>
+          </USelectMenu>
+        </template>
+        <template
+          #toggle
         >
-          <UIcon
-            name="i-heroicons-check-circle-16-solid"
-            class="w-20 h-20 text-green-500"
-          />
-        </div>
-
-        <div
-          v-else-if="validationFailure"
-          class="validation-failure"
-        >
-          <UIcon
-            name="i-heroicons-x-circle-16-solid"
-            class="w-20 h-20 text-red-500"
-          />
-        </div>
-
-        <div
-          v-else-if="validationPending"
-          class="validation-pending"
+          <UDashboardNavbarToggle icon="i-heroicons-x-mark" />
+        </template>
+      </UDashboardNavbar>
+      <div
+        v-if="error"
+        class="flex flex-col mt-3"
+        style="align-items: center"
+      >
+        <qr
+          :data="`https://admin.cargo.onson-mail.uz${localPath('/qrcode/')}`"
         />
-        <div
-          v-else
-          class="screen"
+        <p class="mt-3">
+          {{ error }}
+        </p>
+        <u-button
+          label="test"
+          @click="send_qr_data('5ba96345-818b-402f-a1a4-b425871a7f14')"
+        />
+      </div>
+
+      <div
+        v-else
+        class="flex justify-center mt-3 border-r-4"
+      >
+        <qrcode-stream
+          :paused="paused"
+          class="qrcode-stream"
+          @detect="onDetect"
+          @error="onError"
         >
-          <div />
-        </div>
-      </qrcode-stream>
-    </div>
-    {{ data }}
-  </WithNavbar>
+          <div
+            v-if="validationSuccess"
+            class="validation-success"
+          >
+            <UIcon
+              name="i-heroicons-check-circle-16-solid"
+              class="w-20 h-20 text-green-500"
+            />
+          </div>
+
+          <div
+            v-else-if="validationFailure"
+            class="validation-failure"
+          >
+            <UIcon
+              name="i-heroicons-x-circle-16-solid"
+              class="w-20 h-20 text-red-500"
+            />
+          </div>
+
+          <div
+            v-else-if="validationPending"
+            class="validation-pending"
+          />
+          <div
+            v-else
+            class="screen"
+          >
+            <div />
+          </div>
+        </qrcode-stream>
+      </div>
+      <div class="overflow-y-scroll">
+        <OrderForm
+          v-if="order"
+          :initial="order"
+          :disabled="true"
+          class="m-3"
+        />
+      </div>
+    </UDashboardPanel>
+  </UDashboardPage>
 </template>
 
 <script lang="ts">
@@ -65,9 +102,11 @@ export default {
   components: { QrcodeStream },
   data() {
     return {
+      st: 'create_time',
       paused: false,
       error: null,
       data: null,
+      order: null,
       isValid: undefined
     }
   },
@@ -110,11 +149,13 @@ export default {
     },
     async send_qr_data(order_id: any) {
       try {
-        await this.$api(`cargo/order/admin/order/${order_id}/change_status/`, { method: 'PATCH', body: { status: 'departure_datetime' } })
-        useToast()
-      } catch (e: any) {
-        console.log(e)
-        useToast().add({ title: `${e}`, icon: 'i-heroicons-x-circle-16-solid', color: 'red' })
+        const { data } = await this.$api(`cargo/order/admin/order/${order_id}/change_status/`, {
+          method: 'PATCH',
+          body: { status: this.st }
+        })
+        this.order = data.value
+      } catch {
+        this.order = null
       }
     }
   }
@@ -123,7 +164,7 @@ export default {
 
 <style>
 .qrcode-stream {
-  width: 80%!important;
+  width: 80% !important;
   aspect-ratio: 1/1;
 }
 

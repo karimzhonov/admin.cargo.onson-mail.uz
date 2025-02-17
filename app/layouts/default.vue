@@ -1,5 +1,4 @@
 <script lang="ts">
-import {useIFetch} from "~/plugins/useIFetch";
 
 export default {
   name: 'Default',

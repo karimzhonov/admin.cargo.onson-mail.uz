@@ -4,7 +4,7 @@ import { useIFetch } from '~/plugins/useIFetch'
 
 const i18n = useI18n()
 // eslint-disable-next-line vue/require-prop-types
-const props = defineProps(['initial', 'part_number'])
+const props = defineProps(['initial', 'part_number', 'disabled'])
 const emit = defineEmits(['close'])
 const productColumns = [
   {
@@ -24,7 +24,7 @@ const productColumns = [
     label: i18n.t('Обшая цена')
   }
 ]
-const disabled = props.initial.status ? props.initial.status !== 'create_time' : false
+const disabled = (props.initial.status ? props.initial.status !== 'create_time' : false) || props.disabled
 
 const state = reactive(props.initial)
 // https://ui.nuxt.com/components/form
@@ -49,14 +49,13 @@ const searchClient = async (q: string | null) => {
 async function onSubmit(event: FormSubmitEvent<any>) {
   // Do something with data
   const body = JSON.parse(JSON.stringify(event.data))
-  console.log(!state.products, !state.products?.product_counts)
   if (!state.products || !state.products.product_counts) {
     return useToast().add({
       title: i18n.t('Генерируйте продукты'),
       icon: 'i-heroicons-x-circle-16-solid', color: 'red' })
   }
   body.client = body.client.id
-  body.parts = props.part_number
+  body.parts = props.part_number ?? body.parts
   await useIFetch(`cargo/order/admin/order/`, { method: 'POST', body })
   emit('close')
 }
@@ -80,6 +79,13 @@ async function generate_products() {
     class="space-y-4"
     @submit="onSubmit"
   >
+    <UFormGroup
+      :label="$t('Трек-код')"
+      name="weight"
+      v-if="state.number"
+    >
+      <UBadge color="black">{{ state.number }}</UBadge>
+    </UFormGroup>
     <UFormGroup
       :label="$t('Пасспорт')"
       name="client"
@@ -121,15 +127,15 @@ async function generate_products() {
         placeholder="john.doe@example.com"
       />
     </UFormGroup>
-
-    <UTable
-      v-if="state.products && state.products.product_counts"
-      :rows="Object.values(state.products.product_counts)"
-      :columns="productColumns"
-      class="w-full"
-      :ui="{ divide: 'divide-gray-200 dark:divide-gray-800' }"
-    />
-
+    <div class="overflow-y-scroll" style="height: 400px">
+      <UTable
+        v-if="state.products && state.products.product_counts"
+        :rows="Object.values(state.products.product_counts)"
+        :columns="productColumns"
+        class="w-full"
+        :ui="{ divide: 'divide-gray-200 dark:divide-gray-800' }"
+      />
+    </div>
     <div
       v-if="!disabled"
       class="flex justify-between gap-3"

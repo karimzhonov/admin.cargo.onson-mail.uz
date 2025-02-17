@@ -1,11 +1,9 @@
 <template>
-  <with-navbar>
-    <UDashboardPage>
-      <UDashboardPanel grow>
-        <OrderTable :table="table" />
-      </UDashboardPanel>
-    </UDashboardPage>
-  </with-navbar>
+  <UDashboardPage>
+    <UDashboardPanel grow>
+      <OrderTable :table="table" />
+    </UDashboardPanel>
+  </UDashboardPage>
 </template>
 
 <script>
