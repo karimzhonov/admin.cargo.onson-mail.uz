@@ -30,7 +30,7 @@ watch(selectedPart, () => {
     return
   }
 
-  const ref = partsRefs.value[selectedPart.value.id]
+  const ref = partsRefs.value[selectedPart.value.number]
   if (ref) {
     ref.scrollIntoView({ block: 'nearest' })
   }
@@ -69,7 +69,7 @@ defineShortcuts({
         class="p-4 text-sm cursor-pointer border-l-2"
         :class="[
           part.status == 'process_received_datetime' ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-300',
-          selectedPart && selectedPart.id === part.id ? 'border-primary-500 dark:border-primary-400 bg-primary-100 dark:bg-primary-900/25' : 'border-white dark:border-gray-900 hover:border-primary-500/25 dark:hover:border-primary-400/25 hover:bg-primary-100/50 dark:hover:bg-primary-900/10'
+          selectedPart && selectedPart.number === part.number ? 'border-primary-500 dark:border-primary-400 bg-primary-100 dark:bg-primary-900/25' : 'border-white dark:border-gray-900 hover:border-primary-500/25 dark:hover:border-primary-400/25 hover:bg-primary-100/50 dark:hover:bg-primary-900/10'
         ]"
         @click="selectedPart = part"
       >
@@ -77,19 +77,26 @@ defineShortcuts({
           class="flex items-center justify-between"
           :class="[part.status !== 'process_received_datetime' && 'font-semibold']"
         >
-          <div class="flex items-center gap-3">
-            {{ part.number }} - {{ $t('Партия') }}
-            <UBadge v-if="part.status == 'process_received_datetime'">{{ $t('Доставлен') }}</UBadge>
-          </div>
-
-          <span v-if="part.date">{{ isToday(new Date(part.date)) ? format(new Date(part.date), 'HH:mm') : format(new Date(part.date), 'dd MMM') }}</span>
+          <div>{{ part.number }} - {{ $t('Партия') }}</div>
+          <UBadge :color="statuses[part.status].color">
+            {{ $t(statuses[part.status].name) }}
+          </UBadge>
         </div>
-        <p :class="[part.status == 'process_received_datetime' && 'font-semibold']">
-          {{ part.country.name }} <UBadge color="orange">{{ part.country.code }}</UBadge>
-        </p>
+        <div
+          :class="[part.status == 'process_received_datetime' && 'font-semibold']"
+        />
+        <div class="flex justify-between items-center mt-3">
+          <div class="flex items-center">
+            <UBadge color="orange" class="mr-2">
+              {{ part.country.code }}
+            </UBadge>
+            {{ part.country.name }}
+          </div>
+          <span v-if="part.date">{{
+            isToday(new Date(part.date)) ? format(new Date(part.date), 'HH:mm') : format(new Date(part.date), 'dd MMM')
+          }}</span>
+        </div>
       </div>
-
-      <UDivider />
     </div>
   </UDashboardPanelContent>
 </template>

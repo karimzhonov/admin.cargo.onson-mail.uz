@@ -1,16 +1,4 @@
 <template>
-  <UDashboardNavbar
-    :title="$t('Инвойси')"
-    :badge="table.length"
-  >
-    <template #toggle>
-      <UIcon
-        name="i-heroicons-square-3-stack-3d-solid"
-        class="w-5 h-5"
-      />
-    </template>
-  </UDashboardNavbar>
-
   <UDashboardToolbar>
     <template #left>
       <UInput
@@ -44,12 +32,24 @@
 
   <UTable
     v-if="table.length > 0"
-    v-model="selected"
     :rows="table"
     :columns="columns"
     class="w-full"
     :ui="{ divide: 'divide-gray-200 dark:divide-gray-800' }"
   >
+    <template #status-data="{ row }">
+      <UBadge
+        class="mr-3"
+        :color="statuses[row.status].color"
+      >
+        {{ statuses[row.status].name }}
+      </UBadge>
+    </template>
+    <template #number-data="{ row }">
+      <div @click="row_click(row)" class="cursor-pointer">
+        <UBadge color="black">{{ row.number }}</UBadge>
+      </div>
+    </template>
     <template #pdf-data="{ row }">
       <UButton
         icon="i-heroicons-document-arrow-down-16-solid"
@@ -61,6 +61,22 @@
       />
     </template>
   </UTable>
+  <UDashboardModal
+    v-model="isModalOpen"
+    :title="$t('Изменить инвойс')"
+    :ui="{ width: 'sm:max-w-l' }"
+  >
+    <template #title>
+      {{ $t('Изменить инвойс') }}:  <UBadge color="black">
+        {{ selected.number }}
+      </UBadge>
+    </template>
+    <!-- ~/components/users/UsersForm.vue -->
+    <OrderForm
+      :initial="selected"
+      @close="isModalOpen = false"
+    />
+  </UDashboardModal>
 </template>
 
 <script lang="ts">
@@ -73,9 +89,6 @@ export default {
     const defaultColumns = [{
       key: 'number',
       label: '#'
-    }, {
-      key: 'name',
-      label: 'Name'
     }, {
       key: 'parts',
       label: 'Part'
@@ -100,9 +113,12 @@ export default {
     }]
     return {
       q: '',
-      selectedColumns: defaultColumns,
+      selectedColumns: [
+        defaultColumns[0], defaultColumns[1], defaultColumns[2], defaultColumns[5], defaultColumns[6], defaultColumns[7]
+      ],
       defaultColumns,
-      selected: []
+      selected: {},
+      isModalOpen: false
     }
   },
   computed: {
@@ -111,13 +127,19 @@ export default {
     }
   },
   methods: {
-    download(row) {
+    download(row: any) {
       useIFetch(`cargo/order/admin/order/${row.id}/xlsx/`)
-        .then(response => response.data.value)
-        .then((blob: any) => {
-          const url = window.URL.createObjectURL(blob)
-          window.open(url, '_blank')
+        .then((response) => {
+          const blob = response.data.value
+          const link = document.createElement('a')
+          link.href = window.URL.createObjectURL(blob)
+          link.download = `Invoice_${row.number}.xlsx`
+          link.click()
         })
+    },
+    row_click(row: any) {
+      this.selected = row
+      this.isModalOpen = true
     }
   }
 }

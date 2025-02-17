@@ -8,7 +8,7 @@ export default {
 <template>
   <UDashboardPage>
     <UDashboardPanel grow>
-      <UDashboardNavbar :title="this.title">
+      <UDashboardNavbar :title="title">
         <template #right>
           <UTooltip
             :text="$t('Qrcode Сканер')"

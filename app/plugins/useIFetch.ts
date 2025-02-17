@@ -17,6 +17,7 @@ export async function useIFetch<T>(
   url: string,
   options: UseFetchOptions<T> = {}
 ) {
+  useLoadingIndicator().start()
   const defaults: UseFetchOptions<T> = {
     method: 'GET',
     baseURL,
@@ -41,6 +42,7 @@ export async function useIFetch<T>(
       await useRouter().push(useLocalePath()(`/login?next=${useRoute().path}`))
     }
     const message = Object.values(response.error.value.data).map(v => typeof v === 'string' ? v : v.join('. ')).join('. ')
+    useLoadingIndicator().finish({ error: true })
     useToast().add({ title: message, icon: 'i-heroicons-x-circle-16-solid', color: 'red' })
     throw Error(message)
   } else if (params.method !== 'GET') {
@@ -51,6 +53,7 @@ export async function useIFetch<T>(
       color: 'green'
     })
   }
+  useLoadingIndicator().finish()
   return response
 }
 

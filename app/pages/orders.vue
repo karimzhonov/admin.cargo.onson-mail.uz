@@ -1,12 +1,10 @@
 <template>
-  <with-navbar>
     <UDashboardPage>
       <UDashboardPanel grow>
         <OrderTableView
-          :key="useRoute().query.status"
-          :status="useRoute().query.status ?? '0'"
+          :key="useRoute().query.status_"
+          :status="useRoute().query.status_ ?? '0'"
         />
       </UDashboardPanel>
     </UDashboardPage>
-  </with-navbar>
 </template>

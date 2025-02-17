@@ -1,68 +1,72 @@
-<script setup lang="ts">
-const i18n = useI18n()
+<script lang="ts">
+import {useIFetch} from "~/plugins/useIFetch";
 
-let order_status = {
-  departure_datetime: 'Yolga chiqdi',
-  enter_uzb_datetime: 'UZBga keldi',
-  process_customs_datetime: 'Tamojnada',
-  process_local_datetime: 'Dastavkada',
-  received_datetime: 'Yetkasib berildi'
+export default {
+  name: 'Default',
+  computed: {
+    groups() {
+      return [{
+        key: 'links',
+        label: 'Go to',
+        commands: this.links.map(link => ({ ...link, shortcuts: link.tooltip?.shortcuts }))
+      }]
+    },
+    links() {
+      return [
+        {
+          id: 'home',
+          label: this.$t('Главная страница'),
+          icon: 'i-heroicons-home',
+          to: this.localPath('/'),
+          tooltip: {
+            text: this.$t('Главная страница'),
+            shortcuts: ['G', 'H']
+          }
+        }, {
+          id: 'parts',
+          label: this.$t('Партия'),
+          icon: 'i-heroicons-paper-airplane',
+          to: this.localPath('/parts'),
+          // badge: '4',
+          tooltip: {
+            text: this.$t('Партия'),
+            shortcuts: ['G', 'I']
+          }
+        }, {
+          id: 'session',
+          label: this.$t('Qrcode Сессия'),
+          icon: 'i-heroicons-arrow-down-on-square-stack',
+          to: this.localPath('/session'),
+          tooltip: {
+            text: this.$t('Qrcode Сессия'),
+            shortcuts: ['G', 'U']
+          }
+        }, {
+          id: 'orders',
+          label: this.$t('Инвойси'),
+          icon: 'i-heroicons-square-3-stack-3d-solid',
+          children: Object.keys(statuses.value).reduce((acc: any, s: string) => {
+            return [...acc, {
+              label: statuses.value[s].name,
+              to: `/orders?status_=${s}`,
+              exact: true
+            }]
+          }, []),
+          tooltip: {
+            text: this.$t('Инвойси'),
+            shortcuts: ['G', 'S']
+          }
+        }]
+    }
+  },
+  async mounted() {
+    const { data } = await this.$api('/cargo/order/admin/status/')
+    statuses.value = data.value
+  },
+  methods: {
+    localPath: useLocalePath()
+  }
 }
-
-order_status = Object.keys(order_status).reduce((acc: any, status: string) => {
-  return [...acc, {
-    label: order_status[status],
-    to: `/orders?status=${status}`,
-    exact: true
-  }]
-}, [])
-
-const links = [{
-  id: 'home',
-  label: i18n.t('Главная страница'),
-  icon: 'i-heroicons-home',
-  to: '/',
-  tooltip: {
-    text: i18n.t('Главная страница'),
-    shortcuts: ['G', 'H']
-  }
-}, {
-  id: 'parts',
-  label: i18n.t('Партия'),
-  icon: 'i-heroicons-paper-airplane',
-  to: '/parts',
-  // badge: '4',
-  tooltip: {
-    text: i18n.t('Партия'),
-    shortcuts: ['G', 'I']
-  }
-}, {
-  id: 'session',
-  label: i18n.t('Qrcode Сессия'),
-  icon: 'i-heroicons-arrow-down-on-square-stack',
-  to: '/session',
-  tooltip: {
-    text: i18n.t('Qrcode Сессия'),
-    shortcuts: ['G', 'U']
-  }
-}, {
-  id: 'orders',
-  label: i18n.t('Инвойси'),
-  icon: 'i-heroicons-square-3-stack-3d-solid',
-  children: order_status,
-  tooltip: {
-    text: i18n.t('Инвойси'),
-    shortcuts: ['G', 'S']
-  }
-}]
-
-const groups = [{
-  key: 'links',
-  label: 'Go to',
-  commands: links.map(link => ({ ...link, shortcuts: link.tooltip?.shortcuts }))
-}]
-
-const localPath = useLocalePath()
 </script>
 
 <template>

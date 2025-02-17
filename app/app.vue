@@ -23,7 +23,7 @@ useSeoMeta({
   title,
   description,
   ogTitle: title,
-  ogDescription: description,
+  ogDescription: description
 })
 </script>
 
