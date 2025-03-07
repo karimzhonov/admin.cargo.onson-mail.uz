@@ -1,38 +1,30 @@
 <script setup lang="ts">
-const teams = [{
-  label: 'Nuxt',
-  avatar: {
-    src: 'https://avatars.githubusercontent.com/u/23360933?s=200&v=4'
-  },
-  click: () => {
-    team.value = teams[0]
-  }
-}, {
-  label: 'NuxtLabs',
-  avatar: {
-    src: 'https://avatars.githubusercontent.com/u/62017400?s=200&v=4'
-  },
-  click: () => {
-    team.value = teams[1]
-  }
-}]
+import { useIFetch } from '~/plugins/useIFetch'
+import company from '~/composables/company'
 
-const actions = [{
-  label: 'Create team',
-  icon: 'i-heroicons-plus-circle'
-}, {
-  label: 'Manage teams',
-  icon: 'i-heroicons-cog-8-tooth'
-}]
+const teams = ref([])
 
-const team = ref(teams[0])
+onMounted(async () => {
+  const { data } = await useIFetch(('company/company/'))
+  teams.value = data.value
+  company.value = teams.value[0]
+})
+
+// const actions = [{
+//   label: 'Create team',
+//   icon: 'i-heroicons-plus-circle'
+// }, {
+//   label: 'Manage teams',
+//   icon: 'i-heroicons-cog-8-tooth'
+// }]
+
+const team = computed(() => company.value)
 </script>
 
 <template>
   <UDropdown
-    v-slot="{ open }"
     mode="hover"
-    :items="[teams, actions]"
+    :items="[teams]"
     class="w-full"
     :ui="{ width: 'w-full' }"
     :popper="{ strategy: 'absolute' }"
@@ -44,11 +36,18 @@ const team = ref(teams[0])
       class="w-full"
     >
       <UAvatar
-        :src="team.avatar.src"
+        :src="team.img"
+        size="md"
+      />
+      <span class="mb-0 font-bold text-transparent bg-clip-text bg-gradient-to-br from-primary to-[#8cd66a]">{{ team.name }}</span>
+    </UButton>
+    <template #item="{ item }">
+      <UAvatar
+        :src="item.img"
         size="2xs"
       />
 
-      <span class="truncate text-gray-900 dark:text-white font-semibold">{{ team.label }}</span>
-    </UButton>
+      <span class="truncate text-gray-900 dark:text-white font-semibold">{{ item.name }}</span>
+    </template>
   </UDropdown>
 </template>

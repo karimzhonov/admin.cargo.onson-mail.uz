@@ -56,7 +56,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
   }
   body.client = body.client.id
   body.parts = props.part_number ?? body.parts
-  await useIFetch(`cargo/order/admin/order/`, { method: 'POST', body })
+  await useIFetch(`cargo/order/admin/${company.value.sub}/order/`, { method: 'POST', body })
   emit('close')
 }
 

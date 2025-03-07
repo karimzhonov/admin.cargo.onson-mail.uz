@@ -34,7 +34,7 @@ export default {
   },
   methods: {
     async fetch_parts() {
-      const { data } = await this.$api('cargo/order/admin/part/', { query: { ended: this.tabs[this.selectedTab].value } })
+      const { data } = await this.$api(`cargo/order/admin/${company.value.sub}/part/`, { query: { ended: this.tabs[this.selectedTab].value } })
       this.parts = data.value
     }
   }

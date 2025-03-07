@@ -128,7 +128,7 @@ export default {
   },
   methods: {
     download(row: any) {
-      useIFetch(`cargo/order/admin/order/${row.id}/xlsx/`)
+      useIFetch(`cargo/order/admin/${company.value.sub}/order/${row.id}/xlsx/`)
         .then((response) => {
           const blob = response.data.value
           const link = document.createElement('a')

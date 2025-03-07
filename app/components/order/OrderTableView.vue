@@ -67,7 +67,7 @@ export default {
   },
   methods: {
     async fetch_table() {
-      const { data } = await useIFetch('cargo/order/admin/order/', { query: { status_: this.status, parts: this.part_number } })
+      const { data } = await useIFetch(`cargo/order/admin/${company.value.sub}/order/`, { query: { status_: this.status, parts: this.part_number } })
       this.table = data.value
     },
     async modalClose() {

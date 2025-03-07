@@ -149,7 +149,7 @@ export default {
     },
     async send_qr_data(order_id: any) {
       try {
-        const { data } = await this.$api(`cargo/order/admin/order/${order_id}/change_status/`, {
+        const { data } = await this.$api(`cargo/order/admin/${company.value.sub}/order/${order_id}/change_status/`, {
           method: 'PATCH',
           body: { status: this.st }
         })

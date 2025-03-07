@@ -44,6 +44,7 @@ export default {
           id: 'orders',
           label: this.$t('Инвойси'),
           icon: 'i-heroicons-square-3-stack-3d-solid',
+          collapsible: true,
           children: Object.keys(statuses.value).reduce((acc: any, s: string) => {
             return [...acc, {
               label: statuses.value[s].name,
@@ -59,7 +60,7 @@ export default {
     }
   },
   async mounted() {
-    const { data } = await this.$api('/cargo/order/admin/status/')
+    const { data } = await this.$api(`/cargo/order/status/`)
     statuses.value = data.value
   },
   methods: {
@@ -80,29 +81,7 @@ export default {
         :ui="{ left: 'flex-1' }"
       >
         <template #left>
-          <NuxtLink
-            :to="localPath('/')"
-            class=" flex items-center gap-2"
-          >
-            <span class="flex">
-              <img
-                src="/logo.png"
-                width="45"
-                height="45"
-                alt="logo"
-              >
-            </span>
-            <span class="text-lg text-gray-700 dark:text-white">
-              <p
-                class="mb-0 font-bold text-transparent bg-clip-text bg-gradient-to-br from-primary to-[#8cd66a]"
-                style="line-height: 16px;"
-              >ONSON MAIL</p>
-              <p
-                class="mb=0 font-bold text-transparent bg-clip-text bg-gradient-to-br from-primary to-[#8cd66a]"
-                style="font-size: 12px; line-height: 12px;"
-              >CARGO ADMIN</p>
-            </span>
-          </NuxtLink>
+          <TeamsDropdown />
         </template>
       </UDashboardNavbar>
 
